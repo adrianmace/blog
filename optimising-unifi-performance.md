@@ -1,52 +1,67 @@
 # optimising-unifi-performance
 Below are the key settings that I apply on any unifi installation for optimal performance.
 
+This guide makes the following assumptions:
+- You are located in Australia
+- You have multiple U6-Lite access points.
+- They are positioned appropriately per a professional site survey.
+- You are using the latest controller software as of time of writing.
+
 ## Settings
-### Settings > Site
-- Ensure `Enable Advanced Features` is enabled  
-This allows you to follow along with the guide in it's entirety.
 
-- Ensure `Automatically Optimise Network and WiFi performance` is disabled  
-These settings will do a better job.
+### Settings > WiFi > YOUR-NETWORK-HERE > Advanced
+- Ensure `UAPSD` is enabled
+- Ensure `BSS Transition` is enabled
+- Ensure `Enable Fast Roaming` is enabled
 
-### Settings > Wireless Networks > YOUR-NETWORK-HERE > Edit
-- Ensure `Fast Roaming` is disabled  
-It creates a lot more 'noise' on the dashboard in the form of anomalies when you have more than one access point within a home environment, and is useless if you only have a single one.  
-At the time of writing it's also a BETA feature.
+### Settings WiFi > YOUR-NETWORK-HERE > Advanced > Security
+- Ensure `Security Protocol` is set to `WPA-2`
+- Ensure `PMF` is set to `Disabled`
+- Ensure `Group Rekey Interval` is configured appropriately:
+  - `Group Rekey Interval`: Enabled
+  - `GTK Rekeying every`: 3600 seconds
 
-- Ensure `Combine 2 GHz and 5 GHz WiFi Network Names into one` is enabled  
-With these optimised settings you'll see devices only using 2.4GHz if they either a) don't support 5GHz (thanks Google!) or b) are too far away to maintain a reliable connection.
+### Settings WiFi > YOUR-NETWORK-HERE > Advanced > 802.11 Rate and Beacon Controls
+- Ensure `Override DTIM Period` is enabled
+  - Ensure `DTIM 2G Period` is set to 3
+  - Ensure `DTIM 5G Period` is set to 3
+  - Ensure `2G Data Rate Control` is disabled
+  - Ensure `5G Data Rate Control` is disabled
 
-- Ensure `Connects high performance clients to 5 GHz only` is disabled  
-With these optimised settings you'll see devices always prefer 5GHz, and at the time of writing, the current method to detect 'high performance clients' is not reliable.
+### Settings > Systems Settings > Maintenance
 
-- Ensure `DTIM Mode` default values is disabled  
-This is the interval in which the access point polls the devices to check if they're alive. For many Apple / iOS devices, this causes them to not sleep correctly which both causes anomalies on the dashboard and kills the device battery life.
-  - Set DTIM 2G Period to 3
-  - Set DTIM 5G Period to 3
+- Ensure `Automatic Firmware Upgrades` is enabled
 
-### Settings > Try New Settings > WiFi AI
-- Ensure `Enable WiFi AI` is disabled  
-This is a great feature, but I found it to be choosing channels that were DFS (radar in the area causes intermittent dropouts of your network) or just not selecting channels 1 / 6 / 11.
+### Settings > System Settings > Backup / Restore
+
+- Ensure `Backup Scheduler` is configured appropriately:
+  - Every: Month
+  - On The: 1
+  - At: 12 0 AM
+  - Data Retention Days: Settings Only
+  - Maximum number of Files: 6
+
+### Settings > Advanced Features > WiFi AI
+
+- Ensure `WiFi AI` is configured appropriately:
+  - `WiFi AI`: enabled
+  - `Frequency`: Daily
+  - `Scan Time`: 5 30 AM
+  - `Advanced Settings` > `Exclude 2.4GHz Channels`: 2, 3, 4, 5, 7, 8, 9, 10, 12, 13
 
 ## Devices
-### Devices > YOUR-ACCESS-POINT-HERE > Config > Radios
-- Ensure `Channel Width` is set to the following
-  - Radio 2G should be set to `HT20`
-  - Radio 5G should be set to `VHT80` or `VHT160` (HD series)  
 
-- Ensure `Transmit Power` is set to the following
-  - Radio 2G should be set to `Medium`
-  - Radio 5G should be set to `High`
+Complete this section for each access point you have.
 
-- Ensure `Channel` is set appropriately  
-Run a WiFi scanning utility and pick the least congested channel. This is outside the scope of this doc.
-
-### Devices > YOUR-ACCESS-POINT-HERE > Config > Band Steering
-- Ensure `Band Steering` is set to Prefer 5G  
-This ensures that clients will connect on the 5GHz channel when available.
-
-### Devices > YOUR-ACCESS-POINT-HERE > Config > Airtime Fairness
-- Ensure `Airtime Fairness` is set to On  
-This ensures that the access point shares data between connected clients on a time division multiplexing basis, rather than the default which allows a certain amount of bandwidth to be transferred before moving on.  
-_In practice if this is not enabled, a small Raspberry Pi connected to a far-away AP at 54Mbps will drag every other connected device's effective bandwidth down to 54Mbps until the Pi is powered off or moved to a different AP._
+### Devices > YOUR-ACCESS-POINT-HERE > RF
+- Ensure the 2.4GHz Radio is configured appropriately:
+  - `Channel Width`: HT20
+  - `Channel`: 1, 6, or 11
+  - `Transit Power`: Auto
+  - `Enable Minimum RSSI`: Disabled
+- Ensure the 5GHz Radio is configured appropriately:
+  - `Channel Width`: HT80
+  - `Channel`: 36, 40, 44, 48, or 153
+  - `Transit Power`: Auto
+  - `Enable Minimum RSSI`: Disabled
+- Ensure `Band Steering` is set to Prefer 5G
